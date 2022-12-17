@@ -23,4 +23,4 @@ When looking at the output of trainer, I noticed that although the neural networ
 REFERENCES
 Designed By Hugo - youtube.com/watch?v=Kx5CN-V6FvQ - Used to create barebones of UTTTGameWindow class
 
-Surag Nair - web.stanford.edu/~surag/posts/alphazero.html - Used for creating the trainer executable's main function, used to adapt MCTS to be used with neural networks, and used to create the NeuralNetwork and UTTTNet classes and StateInfo struct
+Thakoor, Shantanu and Nair, Surag and Jhunjhunwala, Megha - Learning to play othello without human knowledge - Used for creating the trainer executable's main function, used to adapt MCTS to be used with neural networks, and used to create the NeuralNetwork and UTTTNet classes and StateInfo struct
