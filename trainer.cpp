@@ -9,6 +9,7 @@
 
 #include <iostream>
 #include <limits>
+#include <map>
 #include <fstream>
 #include <chrono>
 #include <random>
@@ -107,15 +108,15 @@ int main(int argc, char* argv[]) {
 		cout << "Starting iteration " << iteration << endl;
 		chrono::steady_clock::time_point begin = chrono::steady_clock::now();
 		
-		vector<tuple<vector<float>, vector<float>, float>> examples;
+		vector<tuple<vector<float>, vector<float>, float, int>> examples; //examples in format {board, probs, total value, number of episodes}
 		if (LOAD_EXAMPLES == 0 || iteration != 0) {
-			ofstream fout("temp.ex");
+			map<vector<float>, tuple<vector<float>, float, int>> preExamples; //maps game board to {probs, total value, number of episodes}
 			
 			for (int episode=0;episode<EPISODES;episode++) {
 				cout << "Starting episode " << episode << endl;
 				cout << chrono::duration_cast<chrono::minutes>(chrono::steady_clock::now()-begin).count() << " minutes have passed" << endl;
 				UTTTGameState gameState;
-				vector<tuple<vector<float>, vector<float>, float>> curExamples; //examples in format {board, probs, value}
+				vector<vector<float>> curKeys;
 				
 				int turns = 0;
 				vector<float> probs;
@@ -131,8 +132,13 @@ int main(int argc, char* argv[]) {
 					}
 					
 					for (pair<vector<float>,vector<float>> symmetry:gameState.getSymmetries(probs)) {
-						tuple<vector<float>, vector<float>, float> ex = make_tuple(symmetry.first, symmetry.second, -1.0f);
-						curExamples.push_back(ex);
+						if (find(curKeys.begin(), curKeys.end(), symmetry.first) == curKeys.end()) {
+							curKeys.push_back(symmetry.first);
+							
+							if (preExamples.find(symmetry.first) == preExamples.end()) {
+								preExamples.emplace(symmetry.first, make_tuple(symmetry.second, 0.0f, 0));
+							}
+						}
 					}
 					
 					discrete_distribution<int> distribution(probs.begin(), probs.end());
@@ -148,18 +154,36 @@ int main(int argc, char* argv[]) {
 					result = 0.5f;
 				}
 				
-				for (tuple<vector<float>, vector<float>, float> ex:curExamples) {
-					for (int i=0;i<81;i++) {
-						fout << get<0>(ex).at(i) << " ";
-						fout << get<1>(ex).at(i) << " ";
-					}
-					fout << result << endl;
-					
-					get<2>(ex) = result;
-					examples.push_back(ex);
+				for (vector<float> key:curKeys) {
+					get<1>(preExamples.at(key)) += result;
+					get<2>(preExamples.at(key))++;
 				}
 				
 				curMCTS.reset();
+				
+				if ((episode + 1) % (EPISODES / 10) == 0) {
+					ofstream fout("temp.ex");
+					for (map<vector<float>, tuple<vector<float>, float, int>>::iterator i=preExamples.begin();i!=preExamples.end();i++) {
+						for (int j=0;j<81;j++) {
+							fout << i->first.at(j) << " ";
+							fout << get<0>(i->second).at(j) << " ";
+						}
+						fout << get<1>(i->second) << " " << get<2>(i->second) << endl;
+					}
+					
+					fout.close();
+				}
+			}
+			
+			ofstream fout("temp.ex");
+			for (map<vector<float>, tuple<vector<float>, float, int>>::iterator i=preExamples.begin();i!=preExamples.end();i++) {
+				examples.push_back(make_tuple(i->first, get<0>(i->second), get<1>(i->second), get<2>(i->second)));
+				
+				for (int j=0;j<81;j++) {
+					fout << i->first.at(j) << " ";
+					fout << get<0>(i->second).at(j) << " ";
+				}
+				fout << value << endl;
 			}
 			
 			fout.close();
@@ -183,7 +207,7 @@ int main(int argc, char* argv[]) {
 					
 					float fTemp;
 					while (!fin.eof()) {
-						tuple<vector<float>, vector<float>, float> example;
+						tuple<vector<float>, vector<float>, float, float> example;
 						
 						for (int i=0;i<81;i++) {
 							fin >> fTemp;
@@ -273,7 +297,7 @@ int main(int argc, char* argv[]) {
 		cout << "Current model wins: " << curWins << endl;
 		
 		if ((prevWins + curWins == 0) || (float(curWins) / (prevWins + curWins) < 0.55f)) {
-			if (curNN.load("models/temp.pt")) {
+			if (!curNN.load("models/temp.pt")) {
 				cout << "ERROR: Current model did not load correctly from models/temp.pt" << endl;
 			}
 		} else {

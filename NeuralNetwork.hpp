@@ -93,8 +93,8 @@ pair<vector<float>, float> NeuralNetwork<T>::predict(const vector<float> BOARD) 
 }
 
 template<typename T>
-void NeuralNetwork<T>::train(const vector<tuple<vector<float>, vector<float>, float>> EXAMPLES, const int BATCH_SIZE) {
-	for (const tuple<vector<float>, vector<float>, float> EXAMPLE:EXAMPLES) {
+void NeuralNetwork<T>::train(const vector<tuple<vector<float>, vector<float>, float, float>> EXAMPLES, const int BATCH_SIZE) {
+	for (const tuple<vector<float>, vector<float>, float, float> EXAMPLE:EXAMPLES) {
 		if (get<0>(EXAMPLE).size() != mBoardSize || get<1>(EXAMPLE).size() != mBoardSize) {
 			throw invalid_argument("At least one example was not correctly formatted.");
 		}
