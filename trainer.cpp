@@ -66,15 +66,15 @@ int main(int argc, char* argv[]) {
 	NeuralNetwork<UTTTNet> curNN(81), prevNN(81);
 	if (argc >= 2) {
 		if (!curNN.load(argv[1])) {
-			std::cout << "ERROR: Starting current model did not load correctly from " << argv[1] << '\n';
+			std::cout << "ERROR: Starting current model did not load correctly from " << argv[1] << '\n' << std::flush;
 		}
 		if (argc >= 3) {
 			if (!prevNN.load(argv[2])) {
-				std::cout << "ERROR: Starting previous model did not load correctly from " << argv[2] << '\n';
+				std::cout << "ERROR: Starting previous model did not load correctly from " << argv[2] << '\n' << std::flush;
 			}
 		}
 	} else {
-		std::cout << "WARNING: No model was passed." << '\n';
+		std::cout << "WARNING: No model was passed." << '\n' << std::flush;
 	}
 	
 	std::ifstream fin("config.txt");
@@ -114,7 +114,7 @@ int main(int argc, char* argv[]) {
 			
 			for (int episode=0;episode<EPISODES;episode++) {
 				std::cout << "Starting episode " << episode << '\n';
-				std::cout << std::chrono::duration_cast<std::chrono::minutes>(std::chrono::steady_clock::now()-begin).count() << " minutes have passed" << '\n';
+				std::cout << std::chrono::duration_cast<std::chrono::minutes>(std::chrono::steady_clock::now()-begin).count() << " minutes have passed" << '\n' << std::flush;
 				UTTTGameState gameState;
 				std::vector<std::vector<float>> curKeys;
 				
@@ -191,11 +191,11 @@ int main(int argc, char* argv[]) {
 		
 		if (SKIP_TRAINING == 0 || iteration != 0) {
 			if (!curNN.save("models/temp.pt")) {
-				std::cout << "ERROR: Current model did not save correctly to models/temp.pt" << '\n';
+				std::cout << "ERROR: Current model did not save correctly to models/temp.pt" << '\n' << std::flush;
 			}
 			
 			if (!prevNN.load("models/temp.pt")) {
-				std::cout << "ERROR: Previous model did not load correctly from models/temp.pt" << '\n';
+				std::cout << "ERROR: Previous model did not load correctly from models/temp.pt" << '\n' << std::flush;
 			}
 			
 			for (int epoch=0;epoch<EPOCHS * ((LOAD_EXAMPLES > 0 && iteration == 0) ? LOAD_EXAMPLES : 1);epoch++) {
@@ -228,11 +228,11 @@ int main(int argc, char* argv[]) {
 				}
 				
 				std::cout << "Training with " << examples.size() << " examples." << '\n';
-				std::cout << std::chrono::duration_cast<std::chrono::minutes>(std::chrono::steady_clock::now()-begin).count() << " minutes have passed" << '\n';
+				std::cout << std::chrono::duration_cast<std::chrono::minutes>(std::chrono::steady_clock::now()-begin).count() << " minutes have passed" << '\n' << std::flush;
 				
 				curNN.train(examples, BATCH_SIZE);
 				if (!curNN.save("models/temp2.pt")) {
-					std::cout << "ERROR: Current model did not save correctly to models/temp2.pt" << '\n';
+					std::cout << "ERROR: Current model did not save correctly to models/temp2.pt" << '\n' << std::flush;
 				}
 			}
 		}
@@ -243,7 +243,7 @@ int main(int argc, char* argv[]) {
 		int prevWins = 0, curWins = 0;
 		for (int game=0;game<GAMES;game++) {
 			std::cout << "Starting game " << game << '\n';
-			std::cout << std::chrono::duration_cast<std::chrono::minutes>(std::chrono::steady_clock::now()-begin).count() << " minutes have passed" << '\n';
+			std::cout << std::chrono::duration_cast<std::chrono::minutes>(std::chrono::steady_clock::now()-begin).count() << " minutes have passed" << '\n' << std::flush;
 			UTTTGameState gameState;
 			
 			int startingPlayer = game % 2; //0 means previous model and 1 means current model
@@ -281,36 +281,36 @@ int main(int argc, char* argv[]) {
 			}
 			
 			if (gameState.getEnd() == startingPlayer) {
-				std::cout << "Previous model wins! " << '\n';
+				std::cout << "Previous model wins! " << '\n' << std::flush;
 				prevWins++;
 			} else if (gameState.getEnd() == 1 - startingPlayer) {
-				std::cout << "Current model wins!" << '\n';
+				std::cout << "Current model wins!" << '\n' << std::flush;
 				curWins++;
 			} else {
-				std::cout << "It's a tie." << '\n';
+				std::cout << "It's a tie." << '\n' << std::flush;
 			}
 		}
 		curMCTS.reset();
 		prevMCTS.reset();
 		
 		std::cout << "Previous model wins: " << prevWins << '\n';
-		std::cout << "Current model wins: " << curWins << '\n';
+		std::cout << "Current model wins: " << curWins << '\n' << std::flush;
 		
 		if ((prevWins + curWins == 0) || (float(curWins) / (prevWins + curWins) < 0.55f)) {
 			if (!curNN.load("models/temp.pt")) {
-				std::cout << "ERROR: Current model did not load correctly from models/temp.pt" << '\n';
+				std::cout << "ERROR: Current model did not load correctly from models/temp.pt" << '\n' << std::flush;
 			}
 		} else {
 			if (!curNN.save("models/"+to_string(iteration)+".pt")) {
-				std::cout << "ERROR: Current model did not save correctly to models/"+to_string(iteration)+".pt" << '\n';
+				std::cout << "ERROR: Current model did not save correctly to models/"+to_string(iteration)+".pt" << '\n' << std::flush;
 			}
 			
 			if (!curNN.save("models/best.pt")) {
-				std::cout << "ERROR: Current model did not save correctly to models/best.pt" << '\n';
+				std::cout << "ERROR: Current model did not save correctly to models/best.pt" << '\n' << std::flush;
 			}
 		}
 		
-		std::cout << "Iteration " << iteration << " took " << std::chrono::duration_cast<std::chrono::minutes>(std::chrono::steady_clock::now()-begin).count() << " minutes" << '\n';
+		std::cout << "Iteration " << iteration << " took " << std::chrono::duration_cast<std::chrono::minutes>(std::chrono::steady_clock::now()-begin).count() << " minutes" << '\n' << std::flush;
 	}
 	
 	return 0;
