@@ -1,9 +1,10 @@
 100 Iterations
 100 Episodes
-25 Simulations
+200 Simulations
 40 Games
 35 Exploration turns
-512 Batch Size
-1 Load examples
-1 Skip training
+1024 Batch Size
+1 Epochs
+0 Load examples
+0 Skip training
 1 Display games

@@ -86,7 +86,7 @@ int main(int argc, char* argv[]) {
 	
 	vector<int> config;
 	int iTemp;
-	for (int i=0;i<9;i++) {
+	for (int i=0;i<10;i++) {
 		fin >> iTemp;
 		
 		if (fin.fail()) {
@@ -99,7 +99,7 @@ int main(int argc, char* argv[]) {
 	}
 	fin.close();
 	
-	const int ITERATIONS = config.at(0), EPISODES = config.at(1), SIMULATIONS = config.at(2), GAMES = config.at(3), EXPLORATION_TURNS = config.at(4), BATCH_SIZE = config.at(5), LOAD_EXAMPLES = config.at(6), SKIP_TRAINING = config.at(7), DISPLAY_GAMES = config.at(8);
+	const int ITERATIONS = config.at(0), EPISODES = config.at(1), SIMULATIONS = config.at(2), GAMES = config.at(3), EXPLORATION_TURNS = config.at(4), BATCH_SIZE = config.at(5), EPOCHS = config.at(8), LOAD_EXAMPLES = config.at(7), SKIP_TRAINING = config.at(8), DISPLAY_GAMES = config.at(9);
 	
 	MCTS<UTTTNet, UTTTGameState> curMCTS = MCTS<UTTTNet, UTTTGameState>(curNN, SIMULATIONS);
 	MCTS<UTTTNet, UTTTGameState> prevMCTS = MCTS<UTTTNet, UTTTGameState>(prevNN, SIMULATIONS);
@@ -198,7 +198,7 @@ int main(int argc, char* argv[]) {
 				cout << "ERROR: Previous model did not load correctly from models/temp.pt" << endl;
 			}
 			
-			for (int epoch=0;epoch<10 * ((LOAD_EXAMPLES > 0 && iteration == 0) ? LOAD_EXAMPLES : 1);epoch++) {
+			for (int epoch=0;epoch<EPOCHS * ((LOAD_EXAMPLES > 0 && iteration == 0) ? LOAD_EXAMPLES : 1);epoch++) {
 				if (LOAD_EXAMPLES > 0 && iteration == 0) {
 					uniform_int_distribution<int> distribution(1,LOAD_EXAMPLES);
 					examples = {};
