@@ -10,7 +10,6 @@
 
 #include <vector>
 #include <map>
-using namespace std;
 
 const float EXPLORATION_PARAMETER = 1;
 
@@ -29,14 +28,14 @@ public:
 	 * @param BASE_GAME_STATE game state to start simulations on
 	 * @return list of probabilities for each move
 	 */
-	vector<float> getMoveProbs(const U BASE_GAME_STATE);
+	std::vector<float> getMoveProbs(const U BASE_GAME_STATE);
 	
 	/**
 	 * @brief Runs simulations on given game state and returns the best move which is the move with the most visits
 	 * @param BASE_GAME_STATE game state to start simulations on
 	 * @return move list with best move corresponding to a value of one and other moves corresponding to a value of zero
 	 */
-	vector<float> getBestMove(const U BASE_GAME_STATE);
+	std::vector<float> getBestMove(const U BASE_GAME_STATE);
 	
 	/**
 	 * @brief Sets the number of simulations with a minimum of 1
@@ -60,7 +59,7 @@ private:
 	/**
 	 * @brief maps game state keys to their state information
 	 */
-	map<string, StateInfo> mStateInfos;
+	std::map<string, StateInfo> mStateInfos;
 	
 	/**
 	 * @brief Recursively looks for unexplored game state using game state's selection score, simulates it, then updates values based on
@@ -87,7 +86,7 @@ MCTS<T, U>::MCTS(NeuralNetwork<T> NN, const unsigned int SIMULATIONS) : mNN(NN) 
 }
 
 template<typename T, typename U>
-vector<float> MCTS<T, U>::getMoveProbs(const U BASE_GAME_STATE) {
+std::vector<float> MCTS<T, U>::getMoveProbs(const U BASE_GAME_STATE) {
 	mMCTS(BASE_GAME_STATE);
 	
 	float totalSimulations = 1.0f;
@@ -95,7 +94,7 @@ vector<float> MCTS<T, U>::getMoveProbs(const U BASE_GAME_STATE) {
 		totalSimulations = mStateInfos.at(BASE_GAME_STATE.getKey()).simulations;
 	}
 	
-	vector<float> newMoveProbs;
+	std::vector<float> newMoveProbs;
 	for (int move = 0; move < 81; move++) {
 		if (BASE_GAME_STATE.isValid(move) && mStateInfos.find(BASE_GAME_STATE.getChild(move).getKey()) != mStateInfos.end()) {
 			newMoveProbs.push_back(mStateInfos.at(BASE_GAME_STATE.getChild(move).getKey()).visits / totalSimulations);
@@ -108,7 +107,7 @@ vector<float> MCTS<T, U>::getMoveProbs(const U BASE_GAME_STATE) {
 }
 
 template<typename T, typename U>
-vector<float> MCTS<T, U>::getBestMove(const U BASE_GAME_STATE) {
+std::vector<float> MCTS<T, U>::getBestMove(const U BASE_GAME_STATE) {
 	mMCTS(BASE_GAME_STATE);
 	
 	int mostVisited = -1;
@@ -125,7 +124,7 @@ vector<float> MCTS<T, U>::getBestMove(const U BASE_GAME_STATE) {
 		}
 	}
 	
-	vector<float> newMoveProbs;
+	std::vector<float> newMoveProbs;
 	for (int move = 0; move < 81; move++) {
 		newMoveProbs.push_back(move == mostVisited ? 1.0f : 0.0f);
 	}
@@ -158,18 +157,18 @@ float MCTS<T, U>::mSimulate(const U POTENTIAL_LEAF) {
 		}
 	}
 	
-	map<string, StateInfo>::iterator leafStateInfoIter = mStateInfos.find(POTENTIAL_LEAF.getKey());
+	std::map<string, StateInfo>::iterator leafStateInfoIter = mStateInfos.find(POTENTIAL_LEAF.getKey());
 	
 	if (leafStateInfoIter == mStateInfos.end()) {
 		//Evaluates leaf
-		pair<vector<float>, float> results = mNN.predict(POTENTIAL_LEAF.getBoard());
+		std::pair<std::vector<float>, float> results = mNN.predict(POTENTIAL_LEAF.getBoard());
 		
 		float total = 0.0f;
 		for (int move:POTENTIAL_LEAF.getValidMoves()) {
 			total += results.first.at(move);
 		}
 		
-		vector<float> moveProbs;
+		std::vector<float> moveProbs;
 		for (int move = 0; move < 81; move++) {
 			moveProbs.push_back(POTENTIAL_LEAF.isValid(move) ? (results.first.at(move) / total) : 0.0f);
 		}
@@ -187,7 +186,7 @@ float MCTS<T, U>::mSimulate(const U POTENTIAL_LEAF) {
 	for (int move:POTENTIAL_LEAF.getValidMoves()) {
 		float selectionScore;
 		
-		map<string, StateInfo>::iterator childStateInfoIter = mStateInfos.find(POTENTIAL_LEAF.getChild(move).getKey());
+		std::map<string, StateInfo>::iterator childStateInfoIter = mStateInfos.find(POTENTIAL_LEAF.getChild(move).getKey());
 		
 		if (childStateInfoIter != mStateInfos.end()) {
 			float childValue = childStateInfoIter->second.totalValue / childStateInfoIter->second.visits;
@@ -210,7 +209,7 @@ float MCTS<T, U>::mSimulate(const U POTENTIAL_LEAF) {
 	
 	float value = mSimulate(CHILD);
 	
-	map<string, StateInfo>::iterator childStateInfoIter = mStateInfos.find(CHILD.getKey());
+	std::map<string, StateInfo>::iterator childStateInfoIter = mStateInfos.find(CHILD.getKey());
 	
 	//Updates values
 	if (childStateInfoIter != mStateInfos.end()) {

@@ -12,7 +12,6 @@
 
 #include <windows.h>
 #include <vector>
-using namespace std;
 
 class UTTTGameWindow {
 public:

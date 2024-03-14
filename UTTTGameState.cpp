@@ -6,7 +6,6 @@
 
 #include <algorithm>
 #include <fstream>
-using namespace std;
 
 UTTTGameState::UTTTGameState() {
 	for (unsigned int i=0;i<MINI_BOARD_SIDE_LENGTH;i++) {
@@ -28,10 +27,10 @@ UTTTGameState::UTTTGameState(const unsigned int BOARD[BOARD_SIDE_LENGTH][BOARD_S
 	mInit(MOVE,PLAYER);
 }
 
-UTTTGameState UTTTGameState::loadState(string filePath) {
-	ifstream fin(filePath);
+UTTTGameState UTTTGameState::loadState(std::string filePath) {
+	std::ifstream fin(filePath);
 	if (fin.fail()) {
-		throw invalid_argument("Could not open the file for reading.");
+		throw std::invalid_argument("Could not open the file for reading.");
 	}
 	
 	unsigned int miniBoard[MINI_BOARD_SIDE_LENGTH][MINI_BOARD_SIDE_LENGTH];
@@ -44,7 +43,7 @@ UTTTGameState UTTTGameState::loadState(string filePath) {
 		fin >> cell;
 		if (fin.fail()) {
 			fin.close();
-			throw invalid_argument("Error in reading from file.");
+			throw std::invalid_argument("Error in reading from file.");
 		}
 		if (counter < 81) {
 			board[counter / BOARD_SIDE_LENGTH][counter % BOARD_SIDE_LENGTH] = cell;
@@ -64,7 +63,7 @@ UTTTGameState UTTTGameState::loadState(string filePath) {
 
 UTTTGameState UTTTGameState::getChild(const int MOVE) const {
 	if (!isValid(MOVE)) {
-		throw invalid_argument("Invalid move.");
+		throw std::invalid_argument("Invalid move.");
 	}
 	
 	unsigned int copyBoard[BOARD_SIDE_LENGTH][BOARD_SIDE_LENGTH];
@@ -77,11 +76,11 @@ UTTTGameState UTTTGameState::getChild(const int MOVE) const {
 }
 
 bool UTTTGameState::isValid(const int MOVE) const {
-	return find(mValidMoves.begin(), mValidMoves.end(), MOVE) != mValidMoves.end();
+	return std::find(mValidMoves.begin(), mValidMoves.end(), MOVE) != mValidMoves.end();
 }
 
-string UTTTGameState::getKey() const {
-	string key;
+std::string UTTTGameState::getKey() const {
+	std::string key;
 	
 	for (unsigned int i=0;i<BOARD_SIDE_LENGTH;i++) {
 		for (unsigned int j=0;j<BOARD_SIDE_LENGTH;j++) {
@@ -93,20 +92,20 @@ string UTTTGameState::getKey() const {
 	return key;
 }
 
-vector<pair<vector<float>, vector<float>>> UTTTGameState::getSymmetries(const vector<float> PROBS) const {
+std::vector<std::pair<std::vector<float>, std::vector<float>>> UTTTGameState::getSymmetries(const std::vector<float> PROBS) const {
 	if (PROBS.size() < BOARD_SIDE_LENGTH * BOARD_SIDE_LENGTH) {
-		throw invalid_argument("Input vector is too small.");
+		throw std::invalid_argument("Input std::vector is too small.");
 	}
 	
-	vector<pair<vector<float>, vector<float>>> symmetries;
+	std::vector<std::pair<std::vector<float>, std::vector<float>>> symmetries;
 	
-	vector<float> curBoard = getBoard(), reflectedBoard = curBoard;
-	vector<float> curProbs = PROBS, reflectedProbs = curProbs;
+	std::vector<float> curBoard = getBoard(), reflectedBoard = curBoard;
+	std::vector<float> curProbs = PROBS, reflectedProbs = curProbs;
 	
 	for (int i=0;i<4;i++) {
 		if (i != 0) {
-			vector<float> originalBoard = curBoard;
-			vector<float> originalProbs = curProbs;
+			std::vector<float> originalBoard = curBoard;
+			std::vector<float> originalProbs = curProbs;
 			for (unsigned int j=0;j<BOARD_SIDE_LENGTH*BOARD_SIDE_LENGTH;j++) {
 				int originalPos = (j % BOARD_SIDE_LENGTH) * BOARD_SIDE_LENGTH + (BOARD_SIDE_LENGTH - 1 - j / BOARD_SIDE_LENGTH);
 				curBoard[j] = originalBoard[originalPos];
@@ -126,43 +125,43 @@ vector<pair<vector<float>, vector<float>>> UTTTGameState::getSymmetries(const ve
 	return symmetries;
 }
 
-void UTTTGameState::saveState(const string FILE_PATH) const {
-	ofstream fout(FILE_PATH);
+void UTTTGameState::saveState(const std::string FILE_PATH) const {
+	std::ofstream fout(FILE_PATH);
 	
 	if (fout.fail()) {
 		fout.close();
-		throw invalid_argument("Could not open the file for writing.");
+		throw std::invalid_argument("Could not open the file for writing.");
 	}
 	
 	for (unsigned int i=0;i<BOARD_SIDE_LENGTH;i++) {
 		for (unsigned int j=0;j<BOARD_SIDE_LENGTH;j++) {
 			fout << mBoard[i][j] << " ";
 		}
-		fout << endl;
+		fout << '\n';
 	}
 	
 	for (unsigned int i=0;i<MINI_BOARD_SIDE_LENGTH;i++) {
 		for (unsigned int j=0;j<MINI_BOARD_SIDE_LENGTH;j++) {
 			fout << mMiniBoard[i][j] << " ";
 		}
-		fout << endl;
+		fout << '\n';
 	}
 	
-	fout << mPrevMove << " " << mNextPlayer << " " << endl;
+	fout << mPrevMove << " " << mNextPlayer << " " << '\n';
 	
 	if (fout.fail()) {
 		fout.close();
-		throw invalid_argument("Error in writing to file.");
+		throw std::invalid_argument("Error in writing to file.");
 	}
 	fout.close();
 }
 
-vector<int> UTTTGameState::getValidMoves() const {
+std::vector<int> UTTTGameState::getValidMoves() const {
 	return mValidMoves;
 }
 
-vector<float> UTTTGameState::getBoard() const {
-	vector<float> board;
+std::vector<float> UTTTGameState::getBoard() const {
+	std::vector<float> board;
 	for (unsigned int i=0;i<BOARD_SIDE_LENGTH;i++) {
 		for (unsigned int j=0;j<BOARD_SIDE_LENGTH;j++) {
 			board.push_back(mBoard[i][j]);
@@ -172,8 +171,8 @@ vector<float> UTTTGameState::getBoard() const {
 	return board;
 }
 
-vector<float> UTTTGameState::getMiniBoard() const {
-	vector<float> miniBoard;
+std::vector<float> UTTTGameState::getMiniBoard() const {
+	std::vector<float> miniBoard;
 	for (unsigned int i=0;i<MINI_BOARD_SIDE_LENGTH;i++) {
 		for (unsigned int j=0;j<MINI_BOARD_SIDE_LENGTH;j++) {
 			miniBoard.push_back(mMiniBoard[i][j]);
@@ -226,8 +225,8 @@ void UTTTGameState::mGenerateValidMoves() {
 	}
 }
 
-vector<int> UTTTGameState::mGetAllEmpty() const {
-	vector<int> moves;
+std::vector<int> UTTTGameState::mGetAllEmpty() const {
+	std::vector<int> moves;
 	for (unsigned int boardX=0;boardX<3;boardX++) {
 		for (unsigned int boardY=0;boardY<3;boardY++) {
 			if (mMiniBoard[boardY][boardX] == 2) {
@@ -301,9 +300,9 @@ unsigned int UTTTGameState::mFindWinner(const unsigned int (&MINI_BOARD)[MINI_BO
 		}
 	}
 	
-	if (find(sums, sums + 5, 3) != sums + 5) {
+	if (std::find(sums, sums + 5, 3) != sums + 5) {
 		return 0;
-	} else if (find(sums, sums + 5, -3) != sums + 5) {
+	} else if (std::find(sums, sums + 5, -3) != sums + 5) {
 		return 1;
 	} else if (tie) {
 		return 3;

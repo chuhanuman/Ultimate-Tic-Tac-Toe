@@ -11,7 +11,6 @@
 #include <random>
 #include <stdexcept>
 #include <vector>
-using namespace std;
 
 template<typename T>
 class NeuralNetwork {
@@ -28,15 +27,15 @@ public:
 	 * @return pair with the first element being the move probabilities of the given board and the second element being the value of the given board
 	 * @throws invalid_argument if the board is not of the correct size
 	 */
-	pair<vector<float>, float> predict(const vector<float> BOARD);
+	std::pair<std::vector<float>, float> predict(const std::vector<float> BOARD);
 	
 	/**
 	 * @brief Trains neural net on given examples using the given batch size
-	 * @param EXAMPLES vector of tuples each holding a game board, the move probabilities for that game board, and the value of that game board
+	 * @param EXAMPLES std::vector of tuples each holding a game board, the move probabilities for that game board, and the value of that game board
 	 * @param BATCH_SIZE number of examples to include in each batch
 	 * @throws invalid_argument if one of the examples has an invalid size for the board or move probabilities
 	 */
-	void train(const vector<tuple<vector<float>, vector<float>, float>> EXAMPLES, const int BATCH_SIZE);
+	void train(const std::vector<std::tuple<std::vector<float>, std::vector<float>, float, int>> EXAMPLES, const int BATCH_SIZE);
 	
 	/**
 	 * @brief Loads neural net from file path and returns whether it was successful
@@ -72,57 +71,57 @@ NeuralNetwork<T>::NeuralNetwork(unsigned const int BOARD_SIZE) {
 }
 
 template<typename T>
-pair<vector<float>, float> NeuralNetwork<T>::predict(const vector<float> BOARD) {
+std::pair<std::vector<float>, float> NeuralNetwork<T>::predict(const std::vector<float> BOARD) {
 	if (BOARD.size() != mBoardSize) {
-		throw invalid_argument("Board is not the correct size.");
+		throw std::invalid_argument("Board is not the correct size.");
 	}
 	
-	vector<float> board = BOARD;
+	std::vector<float> board = BOARD;
 	torch::Tensor tBoard = torch::from_blob(board.data(), {1, mBoardSize}, torch::TensorOptions(torch::kCPU)).clone();
 	
 	torch::NoGradGuard no_grad;
 	mNet->eval();
 	mNet->to(torch::Device(torch::kCPU));
 	
-	vector<torch::Tensor> results = mNet(tBoard);
+	std::vector<torch::Tensor> results = mNet(tBoard);
 	results.at(0) = results.at(0).exp();
-	vector<float> probs = vector<float>(results.at(0).data_ptr<float>(), results.at(0).data_ptr<float>() + results.at(0).numel());
+	std::vector<float> probs = std::vector<float>(results.at(0).data_ptr<float>(), results.at(0).data_ptr<float>() + results.at(0).numel());
 	float value = results.at(1).item<float>();
 	
 	return {probs, value};
 }
 
 template<typename T>
-void NeuralNetwork<T>::train(const vector<tuple<vector<float>, vector<float>, float, float>> EXAMPLES, const int BATCH_SIZE) {
-	for (const tuple<vector<float>, vector<float>, float, float> EXAMPLE:EXAMPLES) {
-		if (get<0>(EXAMPLE).size() != mBoardSize || get<1>(EXAMPLE).size() != mBoardSize) {
-			throw invalid_argument("At least one example was not correctly formatted.");
+void NeuralNetwork<T>::train(const std::vector<std::tuple<std::vector<float>, std::vector<float>, float, int>> EXAMPLES, const int BATCH_SIZE) {
+	for (const std::tuple<std::vector<float>, std::vector<float>, float, int> EXAMPLE:EXAMPLES) {
+		if (std::get<0>(EXAMPLE).size() != mBoardSize || std::get<1>(EXAMPLE).size() != mBoardSize) {
+			throw std::invalid_argument("At least one example was not correctly formatted.");
 		}
 	}
 	
 	torch::optim::Adam optimizer(mNet->parameters());
-	default_random_engine generator(chrono::system_clock::now().time_since_epoch().count());
-	uniform_int_distribution<int> distribution(0,EXAMPLES.size()-1);
+	std::default_random_engine generator(std::chrono::system_clock::now().time_since_epoch().count());
+	std::uniform_int_distribution<int> distribution(0,EXAMPLES.size()-1);
 	
 	mNet->train();
 	mNet->to(torch::Device(torch::kCPU));
 	
 	int batchCount = EXAMPLES.size() / BATCH_SIZE;
 	for (int batch=0;batch<batchCount;batch++) {
-		vector<float> boards, probs, values;
+		std::vector<float> boards, probs, values;
 		
 		for (int example=0;example<BATCH_SIZE;example++) {
 			int index = distribution(generator);
-			boards.insert(boards.end(), get<0>(EXAMPLES.at(index)).begin(), get<0>(EXAMPLES.at(index)).end());
-			probs.insert(probs.end(), get<1>(EXAMPLES.at(index)).begin(), get<1>(EXAMPLES.at(index)).end());
-			values.push_back(get<2>(EXAMPLES.at(index)));
+			boards.insert(boards.end(), std::get<0>(EXAMPLES.at(index)).begin(), std::get<0>(EXAMPLES.at(index)).end());
+			probs.insert(probs.end(), std::get<1>(EXAMPLES.at(index)).begin(), std::get<1>(EXAMPLES.at(index)).end());
+			values.push_back(std::get<2>(EXAMPLES.at(index)));
 		}
 		
 		torch::Tensor tBoards = torch::from_blob(boards.data(), {BATCH_SIZE, mBoardSize}).clone().to(torch::Device(torch::kCPU));
 		torch::Tensor tProbs = torch::from_blob(probs.data(), {BATCH_SIZE, mBoardSize}).clone().to(torch::Device(torch::kCPU));
 		torch::Tensor tValues = torch::from_blob(values.data(), {BATCH_SIZE, 1}).clone().to(torch::Device(torch::kCPU));
 		
-		vector<torch::Tensor> results = mNet->forward(tBoards);
+		std::vector<torch::Tensor> results = mNet->forward(tBoards);
 		torch::Tensor probsLoss = -1 * torch::sum(tProbs * results.at(0)) / BATCH_SIZE;
 		torch::Tensor valuesLoss = torch::sum(torch::pow(tValues - results.at(1).view(-1), 2)) / BATCH_SIZE;
 		torch::Tensor totalLoss = probsLoss + valuesLoss;

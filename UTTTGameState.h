@@ -7,7 +7,6 @@
 
 #include <string>
 #include <vector>
-using namespace std;
 
 const unsigned int BOARD_SIDE_LENGTH = 9;
 const unsigned int MINI_BOARD_SIDE_LENGTH = 3;
@@ -36,7 +35,7 @@ public:
 	 * @return game state with loaded info
 	 * @throws invalid_argument if file does not exist or is not in the correct format
 	 */
-    static UTTTGameState loadState(const string FILE_PATH);
+    static UTTTGameState loadState(const std::string FILE_PATH);
 	
     /**
 	 * @brief Returns child game state based on playing a given move
@@ -57,40 +56,40 @@ public:
 	 * @brief Returns a string which contains the information needed to recreate this object
 	 * @return the information needed to recreate this object
 	 */
-	string getKey() const;
+	std::string getKey() const;
 	
 	/**
-	 * @brief Returns a vector of pairs of boards and move probabilities generated from the current board and the given move probabilities' symmetric equivalents
-	 * @param PROBS vector of move probabilities
+	 * @brief Returns a std::vector of pairs of boards and move probabilities generated from the current board and the given move probabilities' symmetric equivalents
+	 * @param PROBS std::vector of move probabilities
 	 * @return pairs of boards and move probabilities generated from the current board and the given move probabilities' symmetric equivalents
 	 * @throws invalid_argument if PROBS' size is less than the board's size
 	 */
-	vector<pair<vector<float>, vector<float>>> getSymmetries(const vector<float> PROBS) const;
+	std::vector<std::pair<std::vector<float>, std::vector<float>>> getSymmetries(const std::vector<float> PROBS) const;
 	
 	/**
 	 * @brief Saves this object's game information in an easy to read format at a given file path
 	 * @param FILE_PATH file path to save UTTTGameState in 
 	 * @throws invalid_argument if there was an error in writing to the file
 	 */
-    void saveState(const string FILE_PATH) const;
+    void saveState(const std::string FILE_PATH) const;
 	
 	/**
-	 * @brief Returns vector with all valid moves
+	 * @brief Returns std::vector with all valid moves
 	 * @return all valid moves
 	 */
-    vector<int> getValidMoves() const;
+    std::vector<int> getValidMoves() const;
 	
 	/**
 	 * @brief Returns the current board in a single row, with each row in the board after the previous
 	 * @return current board
 	 */
-	vector<float> getBoard() const;
+	std::vector<float> getBoard() const;
 	
 	/**
 	 * @brief Returns the current mini board in a single row, with each row in the mini board after the previous
 	 * @return current mini board
 	 */
-	vector<float> getMiniBoard() const;
+	std::vector<float> getMiniBoard() const;
 	
 	/**
 	 * @brief Returns the next player
@@ -123,7 +122,7 @@ private:
 	/**
 	 * @brief holds the valid moves that can be made from this object
 	 */
-	vector<int> mValidMoves;
+	std::vector<int> mValidMoves;
     /**
 	 * @brief the end state of this object with a 0 if X won, 1 if O won, 2 if the game has not ended, and 3 if the game is a tie
 	 */
@@ -142,10 +141,10 @@ private:
     void mGenerateValidMoves();
 	
 	/**
-	 * @brief Returns a vector with every empty cell on the board
+	 * @brief Returns a std::vector with every empty cell on the board
 	 * @return all empty cells 
 	 */
-    vector<int> mGetAllEmpty() const;
+    std::vector<int> mGetAllEmpty() const;
 	
 	/**
 	 * @brief Applies a given move for a given player on the given board and mini board

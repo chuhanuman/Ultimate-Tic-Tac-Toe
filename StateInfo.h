@@ -10,7 +10,7 @@ struct StateInfo {
 	 * @brief holds the probabilities of making each move given by a neural network and normalized so that the probabilities still
 	 *        add up to one after the probabilities of invalid moves are set to zero
 	 */
-	vector<float> moveProbs = {};
+	std::vector<float> moveProbs = {};
     /**
 	 * @brief the number of simulations that went past this game state
 	 */

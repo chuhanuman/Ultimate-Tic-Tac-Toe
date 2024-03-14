@@ -1,5 +1,7 @@
-cmake_minimum_required(VERSION 3.0 FATAL_ERROR)
+cmake_minimum_required(VERSION 3.18 FATAL_ERROR)
 project(UTTT)
+
+set(CMAKE_PREFIX_PATH ${CMAKE_PREFIX_PATH} "C:/Users/chuha/OneDrive/Documents/libtorch")
 
 find_package(Torch REQUIRED)
 
@@ -8,11 +10,11 @@ set(CMAKE_BUILD_TYPE Release)
 
 add_executable(trainer trainer.cpp UTTTGameState.cpp)
 target_link_libraries(trainer "${TORCH_LIBRARIES}")
-set_property(TARGET trainer PROPERTY CXX_STANDARD 14)
+set_property(TARGET trainer PROPERTY CXX_STANDARD 17)
 
 add_executable(UTTT main.cpp UTTTGameWindow.cpp UTTTGameState.cpp)
 target_link_libraries(UTTT "${TORCH_LIBRARIES}")
-set_property(TARGET UTTT PROPERTY CXX_STANDARD 14)
+set_property(TARGET UTTT PROPERTY CXX_STANDARD 17)
 
 file(GLOB TORCH_DLLS "${TORCH_INSTALL_PREFIX}/lib/*.dll")
 add_custom_command(TARGET trainer POST_BUILD

@@ -3,7 +3,7 @@
 200 Simulations
 40 Games
 35 Exploration turns
-1024 Batch Size
+2048 Batch Size
 1 Epochs
 0 Load examples
 0 Skip training

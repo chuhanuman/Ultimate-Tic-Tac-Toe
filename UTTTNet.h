@@ -9,7 +9,6 @@
 using namespace torch;
 
 #include <vector>
-using namespace std;
 
 struct UTTTNetImpl : public nn::Module {
 	nn::Conv2d mConv1, mConv2, mConv3, mConv4;
@@ -47,10 +46,10 @@ struct UTTTNetImpl : public nn::Module {
 	/**
 	 * @brief Takes in batch of UTTT game boards and returns move probabilties and game state value for each game board
 	 * @param x tensor which contains game boards
-	 * @return vector with 2 entries, the first entry contains lists of probabilities for moves on game boards,
+	 * @return std::vector with 2 entries, the first entry contains lists of probabilities for moves on game boards,
 	 *         second entry contains values for the corresponding game boards
 	 */
-	vector<Tensor> forward(Tensor x) {
+	std::vector<Tensor> forward(Tensor x) {
 		x = x.view({-1, 1, 9, 9}); //batchSize, 1, 9, 9
 		
 		x = relu(mBn1(mConv1(x))); //batchSize by 512 by 9 by 9

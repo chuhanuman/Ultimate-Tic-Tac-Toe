@@ -151,8 +151,8 @@ void UTTTGameWindow::loadGame() {
 	
 	try {
 		mGameState = UTTTGameState::loadState(filePath);
-	} catch (invalid_argument ex) {
-		throw invalid_argument(ex.what());
+	} catch (std::invalid_argument ex) {
+		throw std::invalid_argument(ex.what());
 	}
 	
 	mStarted = true;
@@ -312,7 +312,7 @@ void UTTTGameWindow::createInputWindow() {
 
 void UTTTGameWindow::saveGame() {
 	if (!mStarted) {
-		throw invalid_argument("You have to be in a game first.");
+		throw std::invalid_argument("You have to be in a game first.");
 	}
 	
 	char filePath[MAX_PATH] = "";
@@ -330,8 +330,8 @@ void UTTTGameWindow::saveGame() {
 	try {
 		mGameState.saveState(filePath);
 		mSaved = true;
-	} catch (invalid_argument ex) {
-		throw invalid_argument(ex.what());
+	} catch (std::invalid_argument ex) {
+		throw std::invalid_argument(ex.what());
 	}
 }
 
@@ -345,7 +345,7 @@ bool UTTTGameWindow::saved() {
 DWORD WINAPI UTTTGameWindow::calculateMove(LPVOID lpParam) {
 	UTTTGameWindow* pUTTTGameWindow = (UTTTGameWindow*)lpParam;
 	
-	vector<float> probs = pUTTTGameWindow->mMCTS.getBestMove(pUTTTGameWindow->mGameState);
+	std::vector<float> probs = pUTTTGameWindow->mMCTS.getBestMove(pUTTTGameWindow->mGameState);
 	
 	int move = -1;
 	for (int i=0;i<probs.size();i++) {
@@ -421,7 +421,7 @@ void UTTTGameWindow::mDisplayGameState(HDC hdc) {
 	
 	SelectObject(hdc, mBoardFont);
 	x = mGameRect.left + mBoardSpacerLength;
-	vector<float> board = mGameState.getBoard();
+	std::vector<float> board = mGameState.getBoard();
 	for (int i=0;i<BOARD_SIDE_LENGTH;i++) {
 		y = mGameRect.top + mBoardSpacerLength;
 		for (int j=0;j<BOARD_SIDE_LENGTH;j++) {
@@ -441,7 +441,7 @@ void UTTTGameWindow::mDisplayGameState(HDC hdc) {
 	
 	SelectObject(hdc, mMiniBoardFont);
 	x = mGameRect.left + mBoardSpacerLength;
-	vector<float> miniBoard = mGameState.getMiniBoard();
+	std::vector<float> miniBoard = mGameState.getMiniBoard();
 	for (int i=0;i<MINI_BOARD_SIDE_LENGTH;i++) {
 		y = mGameRect.top + mBoardSpacerLength;
 		for (int j=0;j<MINI_BOARD_SIDE_LENGTH;j++) {
@@ -559,7 +559,7 @@ LRESULT CALLBACK WindowProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 					try {
 						utttGameWindow->loadGame();
 						InvalidateRect(hWnd, NULL, TRUE);
-					} catch (invalid_argument ex) {
+					} catch (std::invalid_argument ex) {
 						MessageBoxA(hWnd, ex.what(), NULL, MB_OK | MB_ICONERROR);
 					}
 					break;
@@ -567,7 +567,7 @@ LRESULT CALLBACK WindowProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 				case IDM_FILE_SAVE:
 					try {
 						utttGameWindow->saveGame();
-					} catch (invalid_argument ex) {
+					} catch (std::invalid_argument ex) {
 						MessageBoxA(hWnd, ex.what(), NULL, MB_OK | MB_ICONERROR);
 					}
 					break;
